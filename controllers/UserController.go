@@ -1,20 +1,31 @@
 package controllers
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 	"jsfree/cms/database/models"
+	"log"
 	"net/http"
 )
 
 
 func Create(res http.ResponseWriter, req *http.Request){
-    newUser := models.User{
-        Name: "samuel",
-        Email: "amuel@exemplo.com",
-        Password: "senha123",
-        Role: "otário",
+    plainBody, err := io.ReadAll(req.Body)
+
+    if err != nil {
+        log.Fatal(err)
     }
-    result := newUser.Create()
-    fmt.Println(result)
-    fmt.Fprintf(res, "funcionou")
+
+    newUser := models.User{}
+
+    fmt.Println(json.Unmarshal(plainBody, &newUser))
+
+    if newUser.Name == "" || newUser.Email == "" || newUser.Password == "" || newUser.Role == "" { 
+        res.WriteHeader(400)
+        fmt.Fprintf(res, "preencha todos os campos")
+    }
+//    if len(newUser.Password) < 8
+
+fmt.Fprintf(res, "created: %s", plainBody)
 }
